@@ -306,7 +306,7 @@ public class InstallUtil {
 	public static synchronized @CheckForNull Map<String,String> getPersistedInstallStatus() {
         File installingPluginsFile = getInstallingPluginsFile();
         if(installingPluginsFile == null || !installingPluginsFile.exists()) {
-		return null;
+		    return null;
         }
         return (Map<String,String>)new XStream().fromXML(installingPluginsFile);
     }
@@ -317,25 +317,25 @@ public class InstallUtil {
      */
     public static synchronized void persistInstallStatus(List<UpdateCenterJob> installingPlugins) {
         File installingPluginsFile = getInstallingPluginsFile();
-	if(installingPlugins == null || installingPlugins.isEmpty()) {
-		installingPluginsFile.delete();
-		return;
-	}
-	LOGGER.fine("Writing install state to: " + installingPluginsFile.getAbsolutePath());
-	Map<String,String> statuses = new HashMap<String,String>();
-	for(UpdateCenterJob j : installingPlugins) {
-		if(j instanceof InstallationJob && j.getCorrelationId() != null) { // only include install jobs with a correlation id (directly selected)
-			InstallationJob ij = (InstallationJob)j;
-			InstallationStatus status = ij.status;
-			String statusText = status.getType();
-			if(status instanceof Installing) { // flag currently installing plugins as pending
-				statusText = "Pending";
-			}
-			statuses.put(ij.plugin.name, statusText);
-		}
-	}
+        if(installingPlugins == null || installingPlugins.isEmpty()) {
+            installingPluginsFile.delete();
+            return;
+        }
+        LOGGER.fine("Writing install state to: " + installingPluginsFile.getAbsolutePath());
+        Map<String,String> statuses = new HashMap<String,String>();
+        for(UpdateCenterJob j : installingPlugins) {
+            if(j instanceof InstallationJob && j.getCorrelationId() != null) { // only include install jobs with a correlation id (directly selected)
+                InstallationJob ij = (InstallationJob)j;
+                InstallationStatus status = ij.status;
+                String statusText = status.getType();
+                if(status instanceof Installing) { // flag currently installing plugins as pending
+                    statusText = "Pending";
+                }
+                statuses.put(ij.plugin.name, statusText);
+            }
+        }
         try {
-		String installingPluginXml = new XStream().toXML(statuses);
+		    String installingPluginXml = new XStream().toXML(statuses);
             FileUtils.write(installingPluginsFile, installingPluginXml);
         } catch (IOException e) {
             LOGGER.log(SEVERE, "Failed to save " + installingPluginsFile.getAbsolutePath(), e);
